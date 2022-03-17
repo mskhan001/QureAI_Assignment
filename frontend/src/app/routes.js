@@ -1,13 +1,14 @@
 import React from "react";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { APP_CONSTANTS } from "../constants";
-import HomePage from "../pages/HomePage";
 import CaptureImagePage from "../pages/CaptureImagePage";
 
 const routes = [
   {
     path: APP_CONSTANTS.BASE_ROUTE_URLS.HOME,
-    element: <HomePage />,
+    element: (
+      <Navigate replace to={APP_CONSTANTS.BASE_ROUTE_URLS.CAPTURE_IMAGE} />
+    ),
   },
   {
     path: APP_CONSTANTS.BASE_ROUTE_URLS.CAPTURE_IMAGE,

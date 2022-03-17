@@ -4,13 +4,16 @@ import axios from "axios";
 export const postImage = createAsyncThunk(
   "image/postImage",
   async (thunkAPI) => {
-    const res = await axios
-      .get("https://jsonplaceholder.typicode.com/posts")
-      .then((data) => data.json());
-    return res;
+    const res = await axios.get("https://jsonplaceholder.typicode.com/posts");
+    return res.data;
   }
 );
 
+// export const postImage = async () => {
+//   const res = await axios.get("https://jsonplaceholder.typicode.com/posts");
+//   console.log(res);
+//   return res.data;
+// };
 const INTIAL_STATE = {
   loading: false,
   isImageUploaded: false,

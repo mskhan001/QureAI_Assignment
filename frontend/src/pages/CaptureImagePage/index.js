@@ -4,7 +4,18 @@ import {
   PlusOutlined,
   SyncOutlined,
 } from "@ant-design/icons";
-import { Alert, Button, message, Result, Spin, Typography, Upload } from "antd";
+import {
+  Alert,
+  Button,
+  Col,
+  Divider,
+  message,
+  Result,
+  Row,
+  Spin,
+  Typography,
+  Upload,
+} from "antd";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { imageRemoved, imageUploaded, postImage } from "./reducer";
@@ -53,59 +64,68 @@ const CaptureImagePage = () => {
     console.log("PROCESSING IMAGE");
     dispatch(postImage());
   };
+
   return (
     <>
-      <Typography.Title>Welcome to qure.ai Image Predictor</Typography.Title>
-      <Typography.Paragraph>
-        Let's process an image, shall we ?
-      </Typography.Paragraph>
+      <Row align="middle" justify="space-around" style={{ marginTop: 60 }}>
+        <Col align="space-around" style={{ margin: 20 }}>
+          <Typography.Title align="center">Image Predictor</Typography.Title>
+          <Divider orientation="right">qure.ai</Divider>
+          <Typography.Paragraph>
+            Let's process an image, shall we ?
+          </Typography.Paragraph>
+        </Col>
+        <Col align="center" justify="space-around" style={{ margin: 20 }}>
+          <Button icon={<CameraOutlined />} style={{ margin: 20 }}>
+            Take a Photo From my Camera
+          </Button>
+          <Upload
+            fileList={fileList}
+            beforeUpload={handleBeforeUpload}
+            onChange={handleImageUploadOrRemoval}
+            customRequest={handleCustomRequest}
+            listType="picture-card"
+          >
+            <div>
+              <PlusOutlined />
+              <div style={{ marginTop: 8 }}>Upload</div>
+            </div>
+          </Upload>
+          <br />
 
-      <Button icon={<CameraOutlined />}>Take a Photo From my Camera</Button>
-      {
-        <Upload
-          fileList={fileList}
-          beforeUpload={handleBeforeUpload}
-          onChange={handleImageUploadOrRemoval}
-          customRequest={handleCustomRequest}
-          listType="picture-card"
-        >
-          <div>
-            <PlusOutlined />
-            <div style={{ marginTop: 8 }}>Upload</div>
-          </div>
-        </Upload>
-      }
-      <br />
+          <Button
+            disabled={!isImageUploaded}
+            icon={loading ? <LoadingOutlined /> : <SyncOutlined />}
+            onClick={handleProcessImage}
+            style={{ margin: 20 }}
+          >
+            {" "}
+            Process my Image
+          </Button>
+        </Col>
+      </Row>
+      <Row align="middle" justify="space-around">
+        {loading && (
+          <Spin>
+            <Alert
+              message="Processing Image"
+              description="Please wait while our engine process the image for you"
+            />
+          </Spin>
+        )}
 
-      {loading && (
-        <Spin>
-          <Alert
-            message="Processing Image"
-            description="Please wait while our engine process the image for you"
+        {isImageProcessed && (
+          <Result status="success" title="We've processed your image !" />
+        )}
+
+        {fetchingError && (
+          <Result
+            status={500}
+            title="Sorry, Something went wrong !!"
+            subTitle="Please try again after sometime"
           />
-        </Spin>
-      )}
-
-      <Button
-        disabled={!isImageUploaded}
-        icon={loading ? <LoadingOutlined /> : <SyncOutlined />}
-        onClick={handleProcessImage}
-      >
-        {" "}
-        Process my Image
-      </Button>
-
-      {isImageProcessed && (
-        <Result status="success" title="We've processed your image !" />
-      )}
-
-      {fetchingError && (
-        <Result
-          status={500}
-          title="Sorry, Something went wrong !!"
-          subTitle="Please try again after sometime"
-        />
-      )}
+        )}
+      </Row>
     </>
   );
 };
