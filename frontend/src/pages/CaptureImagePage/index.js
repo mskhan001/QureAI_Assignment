@@ -1,7 +1,6 @@
 import {
   CameraOutlined,
   LoadingOutlined,
-  PlusOutlined,
   SyncOutlined,
 } from "@ant-design/icons";
 import {
@@ -9,65 +8,56 @@ import {
   Button,
   Col,
   Divider,
-  message,
   Result,
   Row,
   Spin,
+  Table,
   Typography,
-  Upload,
 } from "antd";
 import { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { imageRemoved, imageUploaded, postImage } from "./reducer";
+import { imageUploaded, postImage, reset } from "./reducer";
 
 const CaptureImagePage = () => {
   const dispatch = useDispatch();
-  const { loading, isImageUploaded, isImageProcessed, fetchingError } =
-    useSelector((state) => state.image);
+  const {
+    loading,
+    isImageUploaded,
+    isImageProcessed,
+    fetchingError,
+    imageResults,
+  } = useSelector((state) => state.image);
 
   // stores the image uploaded
-  const [fileList, setFileList] = useState([]);
-
-  // allows only image files to be uploaded
-  const handleBeforeUpload = (file) => {
-    const isImage =
-      file.type === "image/png" ||
-      file.type === "image/jpeg" ||
-      file.type === "image/jpg";
-    console.log(file.type);
-    if (!isImage)
-      message.error(
-        `${file.name} is not an Image. Please Upload an Image file`
-      );
-    return isImage || Upload.LIST_IGNORE;
-  };
-
-  // dispatches actions if image is uploaded or removed
-  const handleImageUploadOrRemoval = (info) => {
-    // retricts addition of 1 image only
-    setFileList([...info.fileList.slice(-1)]);
-
-    if (info.file.status === "done") dispatch(imageUploaded());
-    if (info.file.status === "removed") dispatch(imageRemoved());
-  };
-
-  // https://stackoverflow.com/questions/51514757/action-function-is-required-with-antd-upload-control-but-i-dont-need-it
-  // bypass the inbuilt POST request action
-  const handleCustomRequest = ({ onSuccess }) => {
-    setTimeout(() => {
-      onSuccess("ok");
-    }, 0);
-  };
+  const [fileList, setFileList] = useState({});
 
   // sends the image to server to be processed
   const handleProcessImage = () => {
-    console.log("PROCESSING IMAGE");
-    dispatch(postImage());
+    dispatch(postImage(fileList));
   };
+
+  const handleInputChange = (event) => {
+    setFileList(event.target.files[0]);
+    dispatch(imageUploaded());
+  };
+
+  // columns for the Result Table
+  const columns = [
+    {
+      title: "Prediction",
+      dataIndex: "prediction",
+      key: "prediction",
+    },
+    {
+      title: "Probability (%)",
+      dataIndex: "probability",
+      key: "probability",
+    },
+  ];
 
   return (
     <>
-      <Row align="middle" justify="space-around" style={{ marginTop: 60 }}>
+      <Row align="middle" justify="space-around">
         <Col align="space-around" style={{ margin: 20 }}>
           <Typography.Title align="center">Image Predictor</Typography.Title>
           <Divider orientation="right">qure.ai</Divider>
@@ -79,19 +69,17 @@ const CaptureImagePage = () => {
           <Button icon={<CameraOutlined />} style={{ margin: 20 }}>
             Take a Photo From my Camera
           </Button>
-          <Upload
-            fileList={fileList}
-            beforeUpload={handleBeforeUpload}
-            onChange={handleImageUploadOrRemoval}
-            customRequest={handleCustomRequest}
-            listType="picture-card"
-          >
-            <div>
-              <PlusOutlined />
-              <div style={{ marginTop: 8 }}>Upload</div>
-            </div>
-          </Upload>
           <br />
+          <div style={{ marginLeft: 50 }}>
+            <input
+              type="file"
+              name="upload_file"
+              onChange={handleInputChange}
+              accept="image/*"
+              align="middle"
+            />
+            <br />
+          </div>
 
           <Button
             disabled={!isImageUploaded}
@@ -104,6 +92,7 @@ const CaptureImagePage = () => {
           </Button>
         </Col>
       </Row>
+
       <Row align="middle" justify="space-around">
         {loading && (
           <Spin>
@@ -115,7 +104,18 @@ const CaptureImagePage = () => {
         )}
 
         {isImageProcessed && (
-          <Result status="success" title="We've processed your image !" />
+          <Result
+            status="success"
+            title="We've processed your image!"
+            subTitle="Results"
+            extra={
+              <Table
+                dataSource={imageResults}
+                columns={columns}
+                pagination={false}
+              />
+            }
+          />
         )}
 
         {fetchingError && (

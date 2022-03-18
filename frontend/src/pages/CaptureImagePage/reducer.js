@@ -1,19 +1,28 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import axios from "axios";
+import { APP_CONSTANTS } from "../../constants";
 
 export const postImage = createAsyncThunk(
   "image/postImage",
-  async (thunkAPI) => {
-    const res = await axios.get("https://jsonplaceholder.typicode.com/posts");
-    return res.data;
+  async (image, thunkAPI) => {
+    // csrf token required for POST CALLS
+    axios.defaults.withCredentials = true;
+    axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+    axios.defaults.xsrfCookieName = "csrftoken";
+
+    let formData = new FormData();
+    formData.append("file", image);
+
+    const response = await axios({
+      method: "post",
+      url: APP_CONSTANTS.API_LINKS.POST_IMAGE,
+      data: formData,
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+    return response.data;
   }
 );
 
-// export const postImage = async () => {
-//   const res = await axios.get("https://jsonplaceholder.typicode.com/posts");
-//   console.log(res);
-//   return res.data;
-// };
 const INTIAL_STATE = {
   loading: false,
   isImageUploaded: false,
@@ -36,17 +45,17 @@ const slice = createSlice({
   },
   extraReducers: {
     [postImage.pending]: (state, action) => {
-      console.log("PENDING");
       state.loading = true;
+      state.fetchingError = false;
+      state.isImageProcessed = false;
     },
     [postImage.fulfilled]: (state, action) => {
-      console.log("FULFILLED");
+      state.imageResults = action.payload;
       state.loading = false;
       state.isImageProcessed = true;
-      state.imageResults = action.payload;
+      state.fetchingError = false;
     },
     [postImage.rejected]: (state, action) => {
-      console.log("REJECTED");
       state.loading = false;
       state.fetchingError = true;
     },
