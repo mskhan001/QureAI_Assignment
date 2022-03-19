@@ -66,9 +66,9 @@ const CaptureImagePage = () => {
           </Typography.Paragraph>
         </Col>
         <Col align="center" justify="space-around" style={{ margin: 20 }}>
-          <Button icon={<CameraOutlined />} style={{ margin: 20 }}>
+          {/* <Button icon={<CameraOutlined />} style={{ margin: 20 }}>
             Take a Photo From my Camera
-          </Button>
+          </Button> */}
           <br />
           <div style={{ marginLeft: 50 }}>
             <input
