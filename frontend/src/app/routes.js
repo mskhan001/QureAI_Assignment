@@ -6,12 +6,6 @@ import CaptureImagePage from "../pages/CaptureImagePage";
 const routes = [
   {
     path: APP_CONSTANTS.BASE_ROUTE_URLS.HOME,
-    element: (
-      <Navigate replace to={APP_CONSTANTS.BASE_ROUTE_URLS.CAPTURE_IMAGE} />
-    ),
-  },
-  {
-    path: APP_CONSTANTS.BASE_ROUTE_URLS.CAPTURE_IMAGE,
     element: <CaptureImagePage />,
   },
 ];
